@@ -10,7 +10,7 @@ namespace ScheduPayBlockchainNetCore.Blocks
     [BsonDiscriminator("ServiceBlock")]
     public class ServiceBlock : IBlock, IComparable<ServiceBlock>, IEquatable<ServiceBlock>
     {
-        public string _dateTimestamp { get; set; }
+        private string _dateTimestamp { get; set; }
         public string DateTimestamp
         {
             get
@@ -88,7 +88,6 @@ namespace ScheduPayBlockchainNetCore.Blocks
         {
             if (other == null) return 1;
 
-            //var testing = ParseDateTimestamp(DateTimestamp).CompareTo(ParseDateTimestamp(other.DateTimestamp));
             return double.Parse(DateTimestamp).CompareTo(double.Parse(other.DateTimestamp));
         }
 
@@ -96,7 +95,6 @@ namespace ScheduPayBlockchainNetCore.Blocks
         {
             if (other == null) return 1;
 
-            //var testing = ParseDateTimestamp(DateTimestamp).CompareTo(ParseDateTimestamp(other.DateTimestamp));
             return double.Parse(Hash).CompareTo(double.Parse(other.Hash));
 
         }
