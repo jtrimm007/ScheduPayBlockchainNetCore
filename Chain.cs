@@ -496,12 +496,11 @@ namespace ScheduPayBlockchainNetCore
         {
             var listOfServiceBlocks = GetServiceBlockList();
             List<ServiceBlock> todayList = new List<ServiceBlock>();
-            Console.WriteLine("Fired");
+
             foreach (var serviceBlock in listOfServiceBlocks)
             {
                 DateTime timestamp = (DateTime)serviceBlock.DateTimestamp.ParseStringTimestamp();
-                Console.WriteLine("timestamp");
-                Console.WriteLine(timestamp.ToUniversalTime());
+
                 var newDatetime = timestamp.AddDays((double)serviceBlock.ServiceDetails.Frequency);
                 var universalDateServiced = newDatetime.ToUniversalTime();
                 var futureDate = DateTime.Now.ToUniversalTime().AddDays(daysAhead);
