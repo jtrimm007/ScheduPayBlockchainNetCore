@@ -22,6 +22,14 @@ namespace ScheduPayBlockchainNetCore.Models
         //public InvoiceDetails Invoice { get; set; }
 
         #region Constructors
+        public ServiceDetails(bool mowed, int frequency, string rescheduledTimestamp, string propertyId, double mowingRate)
+        {
+            Mowed = mowed;
+            Frequency = frequency;
+            RescheduledTimestamp = rescheduledTimestamp;
+            PropertyId = propertyId;
+            MowingRate = mowingRate;
+        }
         public ServiceDetails(bool mowed, int frequency, string rescheduledTimestamp, string propertyId)
         {
             Mowed = mowed;

@@ -1,13 +1,8 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 using ScheduPayBlockchainNetCore.Blocks;
 using ScheduPayBlockchainNetCore.Extensions;
 using ScheduPayBlockchainNetCore.Models;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace ScheduPayBlockchainNetCore
 {
@@ -52,6 +47,7 @@ namespace ScheduPayBlockchainNetCore
         }
         [BsonIgnore]
         public Node<IBlock> Head { get; set; }
+        [BsonIgnore]
         private IBlock[] _chainArray;
         public IBlock[] ChainArray
         {
@@ -496,6 +492,27 @@ namespace ScheduPayBlockchainNetCore
 
             return blockHolder;
         }
+        public List<ServiceBlock> GetXDaysSchedule(int daysAhead)
+        {
+            var listOfServiceBlocks = GetServiceBlockList();
+            List<ServiceBlock> todayList = new List<ServiceBlock>();
+            Console.WriteLine("Fired");
+            foreach (var serviceBlock in listOfServiceBlocks)
+            {
+                DateTime timestamp = (DateTime)serviceBlock.DateTimestamp.ParseStringTimestamp();
+                Console.WriteLine("timestamp");
+                Console.WriteLine(timestamp.ToUniversalTime());
+                var newDatetime = timestamp.AddDays((double)serviceBlock.ServiceDetails.Frequency);
+                var universalDateServiced = newDatetime.ToUniversalTime();
+                var futureDate = DateTime.Now.ToUniversalTime().AddDays(daysAhead);
+
+                if (universalDateServiced.Day == futureDate.Day && universalDateServiced.Year == futureDate.Year && universalDateServiced.Month == futureDate.Month)
+                {
+                    todayList.Add(serviceBlock);
+                }
+            }
+            return todayList;
+        }
         public List<ServiceBlock> GetTodaySchedule()
         {
             var listOfServiceBlocks = GetServiceBlockList();
@@ -586,7 +603,7 @@ namespace ScheduPayBlockchainNetCore
 
         public List<ServiceBlock> GetServiceBlockList()
         {
-            var list = this.ToList();
+            var list = this.ChainArray.ToList();
             list.RemoveAt(0);
             List<ServiceBlock> serviceBlocks = list.Cast<ServiceBlock>().ToList();
             return serviceBlocks;
