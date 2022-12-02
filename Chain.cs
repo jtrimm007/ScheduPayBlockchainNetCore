@@ -161,6 +161,7 @@ namespace ScheduPayBlockchainNetCore
             {
                 Head = node;
             }
+
         }
         public int Count()
         {
@@ -389,7 +390,49 @@ namespace ScheduPayBlockchainNetCore
 
             return chain == null ? "" : JsonConvert.SerializeObject(chain).ToString();
         }
+        public Chain ToChain(IBlock[] array)
+        {
+            Node<IBlock> nodes = new Node<IBlock>
+            {
+                Item = array[0],
+                Next = new Node<IBlock>
+                {
+                    Item = array[1]
+                }
+            };
 
+            Head = nodes;
+
+            return this;
+        }
+
+        public Chain ToChain()
+        {
+            Node<IBlock> nodes = new Node<IBlock>
+            {
+                Item = ChainArray[0] as GenesisBlock,
+                Next = null
+            };
+
+            int lengthOfChain = ChainArray.Length;
+            Head = nodes;
+
+            for (var i = 1; i < lengthOfChain; i++)
+            {
+                nodes.Next = new Node<IBlock>
+                {
+                    Item = ChainArray[i] as ServiceBlock,
+                    Next = null
+                };
+
+                // move to the next node
+                nodes = nodes.Next;
+            }
+
+
+
+            return this;
+        }
         public Chain ToChain(string jsonString)
         {
             List<object> backToJson = JsonConvert.DeserializeObject<List<object>>(jsonString);
@@ -587,6 +630,14 @@ namespace ScheduPayBlockchainNetCore
             }
 
             return invoices;
+        }
+
+        public ServiceBlock GetLastBlock()
+        {
+            var blockSize = this.Count();
+            if (blockSize < 1)
+                return null;
+            return this[blockSize - 1];
         }
 
         /// <summary>
