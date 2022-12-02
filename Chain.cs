@@ -1,13 +1,8 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 using ScheduPayBlockchainNetCore.Blocks;
 using ScheduPayBlockchainNetCore.Extensions;
 using ScheduPayBlockchainNetCore.Models;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace ScheduPayBlockchainNetCore
 {
@@ -52,6 +47,7 @@ namespace ScheduPayBlockchainNetCore
         }
         [BsonIgnore]
         public Node<IBlock> Head { get; set; }
+        [BsonIgnore]
         private IBlock[] _chainArray;
         public IBlock[] ChainArray
         {
@@ -165,6 +161,7 @@ namespace ScheduPayBlockchainNetCore
             {
                 Head = node;
             }
+
         }
         public int Count()
         {
@@ -393,7 +390,49 @@ namespace ScheduPayBlockchainNetCore
 
             return chain == null ? "" : JsonConvert.SerializeObject(chain).ToString();
         }
+        public Chain ToChain(IBlock[] array)
+        {
+            Node<IBlock> nodes = new Node<IBlock>
+            {
+                Item = array[0],
+                Next = new Node<IBlock>
+                {
+                    Item = array[1]
+                }
+            };
 
+            Head = nodes;
+
+            return this;
+        }
+
+        public Chain ToChain()
+        {
+            Node<IBlock> nodes = new Node<IBlock>
+            {
+                Item = ChainArray[0] as GenesisBlock,
+                Next = null
+            };
+
+            int lengthOfChain = ChainArray.Length;
+            Head = nodes;
+
+            for (var i = 1; i < lengthOfChain; i++)
+            {
+                nodes.Next = new Node<IBlock>
+                {
+                    Item = ChainArray[i] as ServiceBlock,
+                    Next = null
+                };
+
+                // move to the next node
+                nodes = nodes.Next;
+            }
+
+
+
+            return this;
+        }
         public Chain ToChain(string jsonString)
         {
             List<object> backToJson = JsonConvert.DeserializeObject<List<object>>(jsonString);
@@ -496,6 +535,26 @@ namespace ScheduPayBlockchainNetCore
 
             return blockHolder;
         }
+        public List<ServiceBlock> GetXDaysSchedule(int daysAhead)
+        {
+            var listOfServiceBlocks = GetServiceBlockList();
+            List<ServiceBlock> todayList = new List<ServiceBlock>();
+
+            foreach (var serviceBlock in listOfServiceBlocks)
+            {
+                DateTime timestamp = (DateTime)serviceBlock.DateTimestamp.ParseStringTimestamp();
+
+                var newDatetime = timestamp.AddDays((double)serviceBlock.ServiceDetails.Frequency);
+                var universalDateServiced = newDatetime.ToUniversalTime();
+                var futureDate = DateTime.Now.ToUniversalTime().AddDays(daysAhead);
+
+                if (universalDateServiced.Day == futureDate.Day && universalDateServiced.Year == futureDate.Year && universalDateServiced.Month == futureDate.Month)
+                {
+                    todayList.Add(serviceBlock);
+                }
+            }
+            return todayList;
+        }
         public List<ServiceBlock> GetTodaySchedule()
         {
             var listOfServiceBlocks = GetServiceBlockList();
@@ -573,6 +632,14 @@ namespace ScheduPayBlockchainNetCore
             return invoices;
         }
 
+        public ServiceBlock GetLastBlock()
+        {
+            var blockSize = this.Count();
+            if (blockSize < 1)
+                return null;
+            return this[blockSize - 1];
+        }
+
         /// <summary>
         /// Gets all of the blocks with at least one invoice. Invoice in service block does not reflect payment for services in that specific block. 
         /// </summary>
@@ -586,7 +653,7 @@ namespace ScheduPayBlockchainNetCore
 
         public List<ServiceBlock> GetServiceBlockList()
         {
-            var list = this.ToList();
+            var list = this.ChainArray.ToList();
             list.RemoveAt(0);
             List<ServiceBlock> serviceBlocks = list.Cast<ServiceBlock>().ToList();
             return serviceBlocks;

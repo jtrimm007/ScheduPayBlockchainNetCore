@@ -10,7 +10,8 @@ namespace ScheduPayBlockchainNetCore.Blocks
     [BsonDiscriminator("ServiceBlock")]
     public class ServiceBlock : IBlock, IComparable<ServiceBlock>, IEquatable<ServiceBlock>
     {
-        private string _dateTimestamp { get; set; }
+        [BsonIgnore]
+        private string _dateTimestamp;
         public string DateTimestamp
         {
             get
@@ -25,6 +26,7 @@ namespace ScheduPayBlockchainNetCore.Blocks
         }
 
         public string LastHash { get; set; }
+        [BsonIgnore]
         private string _hash;
         public string Hash
         {
