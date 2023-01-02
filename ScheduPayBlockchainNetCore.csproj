@@ -4,6 +4,11 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>ScheduPayBlockchainNetCore</PackageId>
+    <Authors>jtrimm007</Authors>
+    <Company>ScheduPay</Company>
+    <PackageDescription>This is the ScheduPay blockchain framework</PackageDescription>
+    <RepositoryUrl>https://github.com/jtrimm007/ScheduPayBlockchainNetCore</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MongoDB.Bson" Version="2.18.0" />
